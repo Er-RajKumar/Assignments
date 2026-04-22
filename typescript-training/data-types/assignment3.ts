@@ -22,16 +22,20 @@ const updatedMarks: number[] = [];
 // ============================================================
 // STEP 1: Add 10 marks to each student using a loop
 // ============================================================
-// 'let i = 0' → start from first student (index 0)
+// 'let i = 0'               → start from first student (index 0)
 // 'i < studentNames.length' → keep going until last student
-// 'i++' → move to next student after each loop
+// 'i++'                     → move to next student after each loop
+
 for (let i = 0; i < studentNames.length; i++) {
 
-  // '+= 10' is the assignment operator that means: add 10 to current mark
-  // Example: if mark is 75, then 75 += 10 becomes 85
-  const newMark: number = originalMarks[i] + 10;
+  // WHY '!' (non-null assertion)?
+  // TypeScript strict mode warns: "array[i] might be undefined"
+  // Because arrays CAN be accessed out of bounds (e.g., index 99 on a 3-item array)
+  // Since we know our loop stays within bounds, we use '!' to tell TypeScript:
+  // "Trust me — this value definitely exists at this index."
+  // Without '!', TypeScript gives error: "Object is possibly 'undefined'"
 
-  // Push (add) the new mark to the updatedMarks array
+  const newMark: number = originalMarks[i]! + 10; // '!' fixes the undefined warning
   updatedMarks.push(newMark);
 }
 
@@ -39,25 +43,23 @@ for (let i = 0; i < studentNames.length; i++) {
 // STEP 2: Print updated marks for each student
 // ============================================================
 console.log("Updated Marks:");
+
 for (let i = 0; i < studentNames.length; i++) {
-  // Print each student name with their updated mark
-  console.log(`${studentNames[i]}: ${updatedMarks[i]}`);
+  // Again using '!' on both arrays to suppress undefined warnings
+  console.log(`${studentNames[i]!}: ${updatedMarks[i]!}`);
 }
 
 // ============================================================
 // STEP 3: Calculate average of updated marks
 // ============================================================
-
-// First calculate the total (sum) of all updated marks
 let totalMarks: number = 0;
 
 for (let i = 0; i < updatedMarks.length; i++) {
-  // '+= ' adds each mark to the running total
-  totalMarks += updatedMarks[i];
+  totalMarks += updatedMarks[i]!; // '!' tells TypeScript this index is safe
 }
 
 // Average = Total ÷ Number of students
-// We use '.toFixed(1)' to show exactly 1 decimal place (e.g. 89.0)
+// '.toFixed(1)' shows exactly 1 decimal place → e.g. 89.0
 const averageMarks: number = totalMarks / updatedMarks.length;
 
 console.log(`Average Marks: ${averageMarks.toFixed(1)}`);

@@ -16,10 +16,10 @@
 const transactions: number[] = [50000, -2000, 3000, -15000, -200, -300, 4000, -3000];
 
 // --- Variables to track results ---
-let creditCount: number = 0;       // How many credits happened
-let debitCount: number = 0;        // How many debits happened
+let creditCount: number = 0;       // How many credit transactions happened
+let debitCount: number = 0;        // How many debit transactions happened
 let totalCredited: number = 0;     // Sum of all credited amounts
-let totalDebited: number = 0;      // Sum of all debited amounts (stored as positive for display)
+let totalDebited: number = 0;      // Sum of all debited amounts (stored as positive)
 let suspiciousCount: number = 0;   // How many transactions exceeded +/- 10000
 
 // ============================================================
@@ -31,30 +31,31 @@ console.log("========================================");
 
 for (let i = 0; i < transactions.length; i++) {
 
-  const amount: number = transactions[i]; // Get the current transaction amount
-  const txNumber: number = i + 1;         // Transaction number (1-based for display)
+  // WHY '!' (non-null assertion)?
+  // TypeScript strict mode warns: "transactions[i] might be undefined"
+  // We use '!' to tell TypeScript: "This index is always valid inside this loop."
+  // Without '!', TypeScript gives: "Type 'number | undefined' is not assignable to type 'number'"
+
+  const amount: number = transactions[i]!; // '!' fixes the undefined/type error
+  const txNumber: number = i + 1;          // Transaction number (1-based for display)
 
   // --- Check if Credit or Debit ---
   if (amount > 0) {
-    // Positive amount = Credit transaction
-    creditCount++;              // Increment credit counter
-    totalCredited += amount;    // Add to total credited
+    creditCount++;           // Positive = Credit → increment credit counter
+    totalCredited += amount; // Add to total credited amount
 
   } else {
-    // Negative amount = Debit transaction
-    debitCount++;               // Increment debit counter
-    totalDebited += Math.abs(amount); // Math.abs() converts negative to positive for sum
-    // Example: Math.abs(-2000) = 2000
+    debitCount++;                     // Negative = Debit → increment debit counter
+    totalDebited += Math.abs(amount); // Math.abs() converts -2000 → 2000 for display
   }
 
   // --- Check for Suspicious Transaction (exceeds +/- 10,000) ---
   if (Math.abs(amount) > 10000) {
-    suspiciousCount++; // Count this as suspicious
+    suspiciousCount++;
 
-    // Determine if it's a suspicious credit or debit for the message
+    // Ternary operator: condition ? valueIfTrue : valueIfFalse
     const transactionType: string = amount > 0 ? "Credit" : "Debit";
 
-    // Print suspicious alert for this transaction
     console.log(`⚠️  Suspicious ${transactionType} Transaction [Tx #${txNumber}] with Amount: ${Math.abs(amount)}`);
   }
 }
@@ -62,11 +63,11 @@ for (let i = 0; i < transactions.length; i++) {
 // ============================================================
 // CALCULATE REMAINING BALANCE
 // ============================================================
-// Balance = Sum of all transactions (credits add, debits subtract)
-// We can use reduce() or simply: sum of array values
 let remainingBalance: number = 0;
+
 for (let i = 0; i < transactions.length; i++) {
-  remainingBalance += transactions[i]; // Credits (positive) add, debits (negative) subtract automatically
+  // '!' again — same fix, same reason
+  remainingBalance += transactions[i]!; // Credits add (+), Debits subtract (-) automatically
 }
 
 // ============================================================
@@ -76,10 +77,10 @@ console.log("----------------------------------------");
 console.log(`1. Total Credit Transactions : ${creditCount}`);
 console.log(`   Total Debit  Transactions : ${debitCount}`);
 console.log("----------------------------------------");
-console.log(`2. Total Amount Credited     : ₹${totalCredited.toLocaleString()}`);
-console.log(`   Total Amount Debited      : ₹${totalDebited.toLocaleString()}`);
+console.log(`2. Total Amount Credited     : ${totalCredited.toLocaleString()}`);
+console.log(`   Total Amount Debited      : ${totalDebited.toLocaleString()}`);
 console.log("----------------------------------------");
-console.log(`3. Remaining Balance         : ₹${remainingBalance.toLocaleString()}`);
+console.log(`3. Remaining Balance         : ${remainingBalance.toLocaleString()}`);
 console.log("----------------------------------------");
 console.log(`4. Total Suspicious Transactions: ${suspiciousCount}`);
 console.log("========================================");
